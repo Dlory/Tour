@@ -129,7 +129,7 @@ function App() {
           {/* Footer */}
           <footer className="mt-12 text-center text-sm text-gray-400 pb-8">
             <p>新西兰南岛8天7晚自驾路书</p>
-            <p className="mt-1">2025年9月28日 - 10月5日</p>
+            <p className="mt-1">2026年9月28日 - 10月5日</p>
           </footer>
         </div>
       </main>
