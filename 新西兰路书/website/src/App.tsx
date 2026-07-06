@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { marked } from 'marked'
 
 interface Chapter {
@@ -18,6 +18,14 @@ const chapters: Chapter[] = [
   { id: 'budget', title: '预算估算', file: '07-预算估算.md' },
   { id: 'tips', title: '实用信息', file: '08-实用信息.md' },
 ]
+
+const findChapterByHref = (href: string) => {
+  const fileName = decodeURIComponent(
+    href.split('#')[0].split('?')[0].split('/').pop() ?? ''
+  )
+
+  return chapters.find((chapter) => chapter.file === fileName)
+}
 
 function App() {
   const [activeChapter, setActiveChapter] = useState<string>('overview')
@@ -46,6 +54,25 @@ function App() {
 
   const currentTitle = chapters.find(c => c.id === activeChapter)?.title || ''
 
+  const navigateToChapter = (chapterId: string) => {
+    setActiveChapter(chapterId)
+    setSidebarOpen(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleContentClick = (event: MouseEvent<HTMLElement>) => {
+    const link = (event.target as HTMLElement).closest('a')
+    const href = link?.getAttribute('href')
+
+    if (!href) return
+
+    const chapter = findChapterByHref(href)
+    if (!chapter) return
+
+    event.preventDefault()
+    navigateToChapter(chapter.id)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile sidebar overlay */}
@@ -72,11 +99,7 @@ function App() {
             {chapters.map((chapter) => (
               <button
                 key={chapter.id}
-                onClick={() => {
-                  setActiveChapter(chapter.id)
-                  setSidebarOpen(false)
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                }}
+                onClick={() => navigateToChapter(chapter.id)}
                 className={`
                   w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors
                   ${activeChapter === chapter.id
@@ -122,6 +145,7 @@ function App() {
           ) : (
             <article
               className="prose-content bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-10"
+              onClick={handleContentClick}
               dangerouslySetInnerHTML={{ __html: content }}
             />
           )}
